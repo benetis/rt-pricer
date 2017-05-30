@@ -12,9 +12,7 @@ object Main extends App {
   val system = ActorSystem()
   val supervisor = system.actorOf(Props(new Supervisor(system)))
 
-  val flatKaunas = "https://www.aruodas.lt/butai/kaune/?FDistrict=6&obj=1&FOrder=Actuality&FRegion=43&mod=Siulo&act=makeSearch&Page=1"
-
-  supervisor ! Start(flatKaunas)
+  supervisor ! Start(RTAruodas())
 
   Await.result(system.whenTerminated, 10 minutes)
 
