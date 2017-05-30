@@ -1,5 +1,0 @@
-package rt
-
-class Crawler {
-
-}
