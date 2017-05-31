@@ -3,11 +3,15 @@ package rt
 trait RTCategory {
 }
 
+trait RTSite {
+  def nextPage(category: RTCategory): String
+}
+
 case class RTFlatsRent() extends RTCategory
 case class RTFlatsSell() extends RTCategory
 case class RTHouseRent() extends RTCategory
 
-case class RTAruodas() {
+case class RTAruodas() extends RTSite {
   val sellFlatsUrl = "https://www.aruodas.lt/butai/kaune/?FDistrict=6&obj=1&FOrder=Actuality&FRegion=43&mod=Siulo&act=makeSearch&Page=1"
 
   /** Next page of "high" view category **/
