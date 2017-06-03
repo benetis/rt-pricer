@@ -12,7 +12,7 @@ object Main extends App {
   val system = ActorSystem()
   val supervisor = system.actorOf(Props(new Supervisor(system)))
 
-  supervisor ! Start(RTAruodas())
+  supervisor ! StartList(RTAruodas())
 
   Await.result(system.whenTerminated, 10 minutes)
 

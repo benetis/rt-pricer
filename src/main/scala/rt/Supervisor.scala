@@ -4,9 +4,8 @@ import akka.actor.{Actor, ActorRef, ActorSystem, _}
 
 import java.net.URL
 
-case class Start(rtSite: RTSite)
-case class Scrap(url: String)
-case class ScrapList(url: List[String])
+case class StartList(rtSite: RTSite)
+case class ScrapList(url: String)
 
 class Supervisor(system: ActorSystem) extends Actor {
 
@@ -16,7 +15,7 @@ class Supervisor(system: ActorSystem) extends Actor {
   val scrapers = system.actorOf(Props(new Scraper(self)))
 
   override def receive: Receive = {
-    case Start(rtSite: RTSite) => scrapers ! Scrap(rtSite.nextPage(RTFlatsRent()))
+    case StartList(rtSite: RTSite) => scrapers ! ScrapList(rtSite.nextPage(RTFlatsRent(), 1))
     case _ => "Not handled"
   }
 

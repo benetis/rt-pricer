@@ -11,7 +11,7 @@ import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
 class Scraper(supervisor: ActorRef) extends Actor {
 
   override def receive: Receive = {
-    case Scrap(url) =>
+    case ScrapList(url) =>
       println("=== start scraping ===")
       println(s"url = $url")
       scrap(url) |> println
