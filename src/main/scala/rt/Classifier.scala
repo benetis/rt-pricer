@@ -17,7 +17,7 @@ case class RTAruodas() extends RTSite {
 
   /** Next page of "high" view category **/
   def nextPage(category: RTCategory, lastPage: Int): String = category match {
-    case RTFlatsRent() => sellFlatsUri ? ("Page" -> (lastPage + 1))
+    case RTFlatsRent() => sellFlatsUri ? ("Page" -> lastPage)
   }
 
 }
