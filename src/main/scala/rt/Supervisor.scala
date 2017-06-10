@@ -27,13 +27,14 @@ case class RTDetails()
 class Supervisor(system: ActorSystem) extends Actor {
 
   var host2Actor = Map.empty[String, ActorRef]
-  var numVisited = 0
+
+
 
   val scrapers = system.actorOf(Props(new Scraper(self)))
 
   override def receive: Receive = {
     case StartList(rtSite: RTSite) => startList(rtSite)
-    case StoreList(list: Seq[Option[String]]) => list |> println
+    case StoreList(list: Seq[Option[String]]) => storeList(list)
     case EndList => ???
     case StartDetails(rtSite: RTSite, rTCategory: RTCategory) => ???
     case StoreDetails(details: List[RTDetails]) => ???
@@ -45,6 +46,11 @@ class Supervisor(system: ActorSystem) extends Actor {
     (1 to 2).foreach { page =>
       scrapers ! ScrapList(rtSite.nextPage(RTFlatsRent(), page))
     }
+  }
+
+  def storeList(list: Seq[Option[String]]) = {
+    //If no clashes = continue scraping!!
+    list |> println
   }
 
 
