@@ -1,10 +1,9 @@
 package rt
 
-import akka.actor.Status.Success
 import akka.actor.{Actor, ActorRef, ActorSystem, _}
 import net.ruippeixotog.scalascraper.dsl.DSL._
-import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
-import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
+
+import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 case class StartList(rtSite: RTSite)
@@ -21,6 +20,7 @@ case class StoreDetails(details: List[RTDetails])
 case class EndDetails()
 
 case class ScrapList(url: String)
+case class ScrapDetails(url: String)
 
 case class RTDetails()
 
@@ -36,21 +36,33 @@ class Supervisor(system: ActorSystem) extends Actor {
     case StartList(rtSite: RTSite) => startList(rtSite)
     case StoreList(list: Seq[Option[String]]) => storeList(list)
     case EndList => ???
-    case StartDetails(rtSite: RTSite, rTCategory: RTCategory) => ???
+    case StartDetails(rtSite: RTSite, rTCategory: RTCategory) => startDetails(rtSite, rTCategory)
     case StoreDetails(details: List[RTDetails]) => ???
     case EndDetails => ???
   }
 
-  def startList(rtSite: RTSite) = {
+  private def startList(rtSite: RTSite) = {
     (1 to 1).foreach { page =>
       scrapers ! ScrapList(rtSite.nextPage(RTFlatsRent(), page))
     }
   }
 
-  def storeList(list: Seq[Option[String]]) = {
+  private def storeList(list: Seq[Option[String]]) = {
     val result = store.writeList(list)
 
     list |> println
+  }
+
+  private def startDetails(site: RTSite,
+                           category: RTCategory) = {
+
+    store.getList().map(records => {
+      records.foreach(r => {
+        val url: String = r("url").toString
+        scrapers ! ScrapDetails(url)
+      })
+    })
+
   }
 
 

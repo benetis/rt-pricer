@@ -20,4 +20,9 @@ class Store {
 
     database.bulkWrite(points, precision = Precision.NANOSECONDS)
   }
+
+  def getList(): Future[List[Record]] = {
+    val result = database.query("SELECT \"url\" from \"rt-prices\".\"autogen\".\"Item\" LIMIT 2")
+    result.map { res => res.series.head.records }
+  }
 }
