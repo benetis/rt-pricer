@@ -1,8 +1,6 @@
 package rt
 
 import akka.actor.{ActorSystem, PoisonPill, Props}
-import com.sun.tools.javadoc.Start
-
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps

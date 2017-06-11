@@ -39,7 +39,6 @@ class Supervisor(system: ActorSystem) extends Actor {
     case StartDetails(rtSite: RTSite, rTCategory: RTCategory) => ???
     case StoreDetails(details: List[RTDetails]) => ???
     case EndDetails => ???
-    case _ => "Not handled"
   }
 
   def startList(rtSite: RTSite) = {
