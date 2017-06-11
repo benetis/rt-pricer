@@ -22,7 +22,7 @@ class Store {
   }
 
   def getList(): Future[List[Record]] = {
-    val result = database.query("SELECT \"url\" from \"rt-prices\".\"autogen\".\"Item\" LIMIT 2")
+    val result = database.query("SELECT \"url\" from \"rt-prices\".\"autogen\".\"Item\"")
     result.map { res => res.series.head.records }
   }
 }

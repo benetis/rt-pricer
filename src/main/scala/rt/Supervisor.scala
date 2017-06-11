@@ -3,7 +3,7 @@ package rt
 import akka.actor.{Actor, ActorRef, ActorSystem, _}
 import net.ruippeixotog.scalascraper.dsl.DSL._
 
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 case class StartList(rtSite: RTSite)
@@ -60,6 +60,7 @@ class Supervisor(system: ActorSystem) extends Actor {
       records.foreach(r => {
         val url: String = r("url").toString
         scrapers ! ScrapDetails(url)
+        Thread.sleep(2000) //throttle to not kill the site
       })
     })
 
