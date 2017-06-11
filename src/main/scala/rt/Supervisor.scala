@@ -1,11 +1,11 @@
 package rt
 
+import akka.actor.Status.Success
 import akka.actor.{Actor, ActorRef, ActorSystem, _}
-
-
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 case class StartList(rtSite: RTSite)
 
@@ -28,7 +28,7 @@ class Supervisor(system: ActorSystem) extends Actor {
 
   var host2Actor = Map.empty[String, ActorRef]
 
-
+  val store = new Store
 
   val scrapers = system.actorOf(Props(new Scraper(self)))
 
@@ -42,13 +42,14 @@ class Supervisor(system: ActorSystem) extends Actor {
   }
 
   def startList(rtSite: RTSite) = {
-    (1 to 2).foreach { page =>
+    (1 to 1).foreach { page =>
       scrapers ! ScrapList(rtSite.nextPage(RTFlatsRent(), page))
     }
   }
 
   def storeList(list: Seq[Option[String]]) = {
-    //If no clashes = continue scraping!!
+    val result = store.writeList(list)
+
     list |> println
   }
 
