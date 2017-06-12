@@ -29,6 +29,9 @@ class Store {
       .addField("equipment", details.equipment.getOrElse(""))
       .addField("short-description", details.shortDescription.getOrElse(""))
       .addField("comment", details.comment.getOrElse(""))
+      .addField("created", details.created.getOrElse(""))
+      .addField("edited", details.edited.getOrElse(""))
+      .addField("interested", details.interested.getOrElse(""))
 
     database.write(point, precision = Precision.NANOSECONDS)
   }

@@ -5,7 +5,7 @@ import akka.actor.{Actor, ActorRef, ActorSystem, _}
 case class StartDetails(rtSite: RTSite,
                         rTCategory: RTCategory)
 
-case class StoreDetails(details: List[RTDetails],
+case class StoreDetails(details: RTDetails,
                         rtSite: RTSite,
                         rTCategory: RTCategory)
 
@@ -25,7 +25,10 @@ case class RTDetails(id: Option[String],
                      heatingSystem: Option[String],
                      equipment: Option[String],
                      shortDescription: Option[String],
-                     comment: Option[String]
+                     comment: Option[String],
+                     created: Option[String],
+                     edited: Option[String],
+                     interested: Option[String]
                     )
 
 class Supervisor(system: ActorSystem) extends Actor {
@@ -46,7 +49,7 @@ class Supervisor(system: ActorSystem) extends Actor {
   private def storeDetails(details: RTDetails,
                            rtSite: RTSite,
                            rtCategory: RTCategory) = {
-    val result = store.writeDetails(details, rtSite, rtCategory)
+    store.writeDetails(details, rtSite, rtCategory)
   }
 
   private def startDetails(site: RTSite,
