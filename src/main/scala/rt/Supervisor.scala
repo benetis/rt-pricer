@@ -1,30 +1,32 @@
 package rt
 
 import akka.actor.{Actor, ActorRef, ActorSystem, _}
-import net.ruippeixotog.scalascraper.dsl.DSL._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-
-case class StartList(rtSite: RTSite, rTCategory: RTCategory)
-
-case class StoreList(list: Seq[Option[String]],
-                     rTSite: RTSite,
-                     rTCategory: RTCategory)
-
-case class EndList()
 
 case class StartDetails(rtSite: RTSite,
                         rTCategory: RTCategory)
 
-case class StoreDetails(details: List[RTDetails])
+case class StoreDetails(details: List[RTDetails],
+                        rtSite: RTSite,
+                        rTCategory: RTCategory)
 
 case class EndDetails()
 
-case class ScrapList(url: String, rTSite: RTSite, rTCategory: RTCategory)
+case class ScrapDetails(url: String,
+                        rtSite: RTSite,
+                        rTCategory: RTCategory)
 
-case class ScrapDetails(url: String)
-
-case class RTDetails()
+case class RTDetails(id: String,
+                     url: String,
+                     price: Int,
+                     area: Float,
+                     rooms: Int,
+                     floor: Int,
+                     houseType: String,
+                     heatingSystem: String,
+                     equipment: String,
+                     shortDescription: String,
+                     comment: String
+                    )
 
 class Supervisor(system: ActorSystem) extends Actor {
 
@@ -35,39 +37,28 @@ class Supervisor(system: ActorSystem) extends Actor {
   val scrapers = system.actorOf(Props(new Scraper(self)))
 
   override def receive: Receive = {
-    case StartList(rtSite: RTSite, rtCategory: RTCategory) => startList(rtSite, rtCategory)
-    case StoreList(list: Seq[Option[String]], rtSite: RTSite, rtCategory: RTCategory) =>
-      storeList(list, rtSite, rtCategory)
-    case EndList => ???
     case StartDetails(rtSite: RTSite, rTCategory: RTCategory) => startDetails(rtSite, rTCategory)
-    case StoreDetails(details: List[RTDetails]) => ???
+    case StoreDetails(details: RTDetails, rtSite: RTSite, rtCategory: RTCategory) =>
+      storeDetails(details, rtSite, rtCategory)
     case EndDetails => ???
   }
 
-  private def startList(rtSite: RTSite, rtCategory: RTCategory) = {
-    (1 to 1).foreach { page =>
-      scrapers ! ScrapList(rtSite.nextPage(RTFlatsRent(), page), rtSite, rtCategory)
-    }
-  }
-
-  private def storeList(list: Seq[Option[String]],
-                        rtSite: RTSite,
-                        rtCategory: RTCategory) = {
-    val result = store.writeList(list, rtSite, rtCategory)
-
-    list |> println
+  private def storeDetails(details: RTDetails,
+                           rtSite: RTSite,
+                           rtCategory: RTCategory) = {
+    val result = store.writeDetails(details, rtSite, rtCategory)
   }
 
   private def startDetails(site: RTSite,
                            category: RTCategory) = {
 
-    store.getList().map(records => {
-      records.foreach(r => {
-        val url: String = r("url").toString
-        scrapers ! ScrapDetails(url)
-        Thread.sleep(2000) //throttle to not kill the site
-      })
-    })
+    //    store.getList().map(records => {
+    //      records.foreach(r => {
+    //        val url: String = r("url").toString
+    //        scrapers ! ScrapDetails(url, rtS)
+    //        Thread.sleep(2000) //throttle to not kill the site
+    //      })
+    //    })
 
   }
 

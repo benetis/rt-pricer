@@ -11,32 +11,26 @@ class Store {
   val influxdb: InfluxDB = InfluxDB.connect("localhost", 8086)
   val database: Database = influxdb.selectDatabase("rt-prices")
 
-  def writeList(list: Seq[Option[String]],
-                rTSite: RTSite,
-                rTCategory: RTCategory): Future[Boolean] = {
-    val points = list
-      .map { item => {
+  def writeDetails(details: RTDetails,
+                   rtSite: RTSite,
+                   rtCategory: RTCategory): Future[Boolean] = {
 
-        /*TODO: Can be grabbed from rtSite + rtCategory */
-        val (url, id) = item match {
-          case Some(url: String) => (url, url.substring(url.length - 10, url.length - 1))
-          case None => ("", "url-not-found")
-        }
 
-        Point("Item", System.nanoTime())
-          .addTag("id", id)
-          .addTag("category", rTSite.categoryId(rTCategory))
-          .addField("url", url)
+    val point = Point("RTItem", System.nanoTime())
+      .addTag("id", details.id)
+      .addTag("category", rtSite.categoryId(rtCategory))
+      .addField("url", details.url)
+      .addTag("price", details.price.toString)
+      .addTag("area", details.area.toString)
+      .addTag("rooms", details.rooms.toString)
+      .addField("floor", details.floor)
+      .addField("house-type", details.houseType)
+      .addField("heating-system", details.heatingSystem)
+      .addField("equipment", details.equipment)
+      .addField("short-description", details.shortDescription)
+      .addField("comment", details.comment)
 
-      }
-
-      }
-
-    database.bulkWrite(points, precision = Precision.NANOSECONDS)
+    database.write(point, precision = Precision.NANOSECONDS)
   }
 
-  def getList(): Future[List[Record]] = {
-    val result = database.query("SELECT distinct(\"url\") as \"url\" FROM \"rt-prices\".\"autogen\".\"Item\"")
-    result.map { res => res.series.head.records }
-  }
 }

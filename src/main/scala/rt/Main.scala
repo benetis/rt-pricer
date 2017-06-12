@@ -10,8 +10,7 @@ object Main extends App {
   val system = ActorSystem()
   val supervisor = system.actorOf(Props(new Supervisor(system)))
 
-  supervisor ! StartList(RTAruodas(), RTFlatsSell())
-//  supervisor ! StartDetails(RTAruodas(), RTFlatsSell())
+  supervisor ! StartDetails(RTAruodas(), RTFlatsSell())
 
   Await.result(system.whenTerminated, 10 minutes)
 
