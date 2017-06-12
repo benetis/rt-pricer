@@ -17,6 +17,7 @@ class Store {
     val points = list
       .map { item => {
 
+        /*TODO: Can be grabbed from rtSite + rtCategory */
         val (url, id) = item match {
           case Some(url: String) => (url, url.substring(url.length - 10, url.length - 1))
           case None => ("", "url-not-found")
@@ -24,7 +25,8 @@ class Store {
 
         Point("Item", System.nanoTime())
           .addTag("id", id)
-          .addTag("url", url)
+          .addTag("category", rTSite.categoryId(rTCategory))
+          .addField("url", url)
 
       }
 
