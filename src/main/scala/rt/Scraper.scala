@@ -11,11 +11,11 @@ import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
 class Scraper(supervisor: ActorRef) extends Actor {
 
   override def receive: Receive = {
-    case ScrapList(url) =>
+    case ScrapList(url, rTSite, rTCategory) =>
       println("=== start scraping list of items===")
       println(s"url = $url")
       val result = scrap(url)
-      sender() ! StoreList(result)
+      sender() ! StoreList(result, rTSite, rTCategory)
     case ScrapDetails(url) =>
       println("=== start scraping details ===")
       println(s"url = $url")

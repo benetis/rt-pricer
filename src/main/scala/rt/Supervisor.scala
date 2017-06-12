@@ -3,12 +3,13 @@ package rt
 import akka.actor.{Actor, ActorRef, ActorSystem, _}
 import net.ruippeixotog.scalascraper.dsl.DSL._
 
-import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class StartList(rtSite: RTSite)
+case class StartList(rtSite: RTSite, rTCategory: RTCategory)
 
-case class StoreList(list: Seq[Option[String]])
+case class StoreList(list: Seq[Option[String]],
+                     rTSite: RTSite,
+                     rTCategory: RTCategory)
 
 case class EndList()
 
@@ -19,7 +20,8 @@ case class StoreDetails(details: List[RTDetails])
 
 case class EndDetails()
 
-case class ScrapList(url: String)
+case class ScrapList(url: String, rTSite: RTSite, rTCategory: RTCategory)
+
 case class ScrapDetails(url: String)
 
 case class RTDetails()
@@ -33,22 +35,25 @@ class Supervisor(system: ActorSystem) extends Actor {
   val scrapers = system.actorOf(Props(new Scraper(self)))
 
   override def receive: Receive = {
-    case StartList(rtSite: RTSite) => startList(rtSite)
-    case StoreList(list: Seq[Option[String]]) => storeList(list)
+    case StartList(rtSite: RTSite, rtCategory: RTCategory) => startList(rtSite, rtCategory)
+    case StoreList(list: Seq[Option[String]], rtSite: RTSite, rtCategory: RTCategory) =>
+      storeList(list, rtSite, rtCategory)
     case EndList => ???
     case StartDetails(rtSite: RTSite, rTCategory: RTCategory) => startDetails(rtSite, rTCategory)
     case StoreDetails(details: List[RTDetails]) => ???
     case EndDetails => ???
   }
 
-  private def startList(rtSite: RTSite) = {
+  private def startList(rtSite: RTSite, rtCategory: RTCategory) = {
     (1 to 1).foreach { page =>
-      scrapers ! ScrapList(rtSite.nextPage(RTFlatsRent(), page))
+      scrapers ! ScrapList(rtSite.nextPage(RTFlatsRent(), page), rtSite, rtCategory)
     }
   }
 
-  private def storeList(list: Seq[Option[String]]) = {
-    val result = store.writeList(list)
+  private def storeList(list: Seq[Option[String]],
+                        rtSite: RTSite,
+                        rtCategory: RTCategory) = {
+    val result = store.writeList(list, rtSite, rtCategory)
 
     list |> println
   }
