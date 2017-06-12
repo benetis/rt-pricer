@@ -15,17 +15,17 @@ case class ScrapDetails(url: String,
                         rtSite: RTSite,
                         rTCategory: RTCategory)
 
-case class RTDetails(id: String,
-                     url: String,
-                     price: Int,
-                     area: Float,
-                     rooms: Int,
-                     floor: Int,
-                     houseType: String,
-                     heatingSystem: String,
-                     equipment: String,
-                     shortDescription: String,
-                     comment: String
+case class RTDetails(id: Option[String],
+                     url: Option[String],
+                     price: Option[String],
+                     area: Option[Double],
+                     rooms: Option[Int],
+                     floor: Option[Int],
+                     houseType: Option[String],
+                     heatingSystem: Option[String],
+                     equipment: Option[String],
+                     shortDescription: Option[String],
+                     comment: Option[String]
                     )
 
 class Supervisor(system: ActorSystem) extends Actor {
@@ -51,6 +51,12 @@ class Supervisor(system: ActorSystem) extends Actor {
 
   private def startDetails(site: RTSite,
                            category: RTCategory) = {
+
+    scrapers ! ScrapDetails(
+      "https://en.aruodas.lt/butai-vilniuje-fabijoniskese-fabijoniskiu-g-paskutinis-loftas-grande-skelbiamas-1-2280415/",
+      site,
+      category
+    )
 
     //    store.getList().map(records => {
     //      records.foreach(r => {
