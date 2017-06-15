@@ -15,22 +15,6 @@ case class ScrapDetails(url: String,
                         rtSite: RTSite,
                         rTCategory: RTCategory)
 
-case class RTDetails(id: Option[String],
-                     url: Option[String],
-                     price: Option[String],
-                     area: Option[Double],
-                     rooms: Option[Int],
-                     floor: Option[Int],
-                     houseType: Option[String],
-                     heatingSystem: Option[String],
-                     equipment: Option[String],
-                     shortDescription: Option[String],
-                     comment: Option[String],
-                     created: Option[String],
-                     edited: Option[String],
-                     interested: Option[String]
-                    )
-
 class Supervisor(system: ActorSystem) extends Actor {
 
   var host2Actor = Map.empty[String, ActorRef]

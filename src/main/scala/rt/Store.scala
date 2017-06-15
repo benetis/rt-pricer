@@ -21,7 +21,7 @@ class Store {
       .addTag("category", rtSite.categoryId(rtCategory))
       .addField("url", details.url.getOrElse(""))
       .addTag("price", details.price.getOrElse(""))
-      .addTag("area", details.area.getOrElse(0f).toString)
+      .addTag("area", details.area.area.getOrElse(0f).toString)
       .addTag("rooms", details.rooms.getOrElse(0).toString)
       .addField("floor", details.floor.getOrElse(-1))
       .addField("house-type", details.houseType.getOrElse(""))

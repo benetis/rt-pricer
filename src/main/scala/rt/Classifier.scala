@@ -35,6 +35,29 @@ case class RTAruodas() extends RTSite {
 
 }
 
+/**
+  * Details are a part above the ad, where DD / DT is used show categorized info
+  * Item is one RT ad
+  */
+
+case class RTDetailsArea(area: Option[Double])
+
+case class RTDetails(id: Option[String],
+                     url: Option[String],
+                     price: Option[String],
+                     area: RTDetailsArea,
+                     rooms: Option[Int],
+                     floor: Option[Int],
+                     houseType: Option[String],
+                     heatingSystem: Option[String],
+                     equipment: Option[String],
+                     shortDescription: Option[String],
+                     comment: Option[String],
+                     created: Option[String],
+                     edited: Option[String],
+                     interested: Option[String]
+                    )
+
 
 class Classifier {
 

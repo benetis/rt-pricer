@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorRef}
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
-
+import net.ruippeixotog.scalascraper.model.Element
 
 class Scraper(supervisor: ActorRef) extends Actor {
 
@@ -25,8 +25,16 @@ class Scraper(supervisor: ActorRef) extends Actor {
 
     println("=== [DETAILS] FLATS ===")
     val id = url.substring(url.length - 10, url.length - 1)
-    val price = doc >> element(".obj-price") >?> text
+    val price = doc >> element(".obj-p" +
+      "rice") >?> text
     val comment = doc >> element(".obj-comment") >?> text
+
+    val detailsTerms = doc >> elementList(".obj-details dt")
+    val detailsItem = doc >> elementList(".obj-details dd")
+
+    val details = detailsTerms.zip(detailsItem)
+
+    val splitDetails: Seq[RTDetailsArea] = this.splitDetails(details)
 
     val stats = doc >> elementList(".obj-stats dl dd")
 
@@ -35,8 +43,36 @@ class Scraper(supervisor: ActorRef) extends Actor {
     val interested = stats(3).text
 
 
-    RTDetails(Some(id), Some(url), price, None, None, None, None, None, None, None, comment,
+    RTDetails(Some(id), Some(url), price, splitDetails.head, None, None, None, None, None, None, comment,
       Some(created), Some(edited), Some(interested))
+  }
+
+  private def splitDetails(details: Seq[(Element, Element)]) = {
+    lazy val _details = details.map({
+      case (term, item) => term.text match {
+        case "Area (m²):" => RTDetailsArea(convertAreaToDouble(item.text))
+        case "Number of rooms :" => RTDetailsArea(convertAreaToDouble(item.text))
+        case "Floor:" => RTDetailsArea(convertAreaToDouble(item.text))
+        case "No. of floors:" => RTDetailsArea(convertAreaToDouble(item.text))
+        case "Build year:" => RTDetailsArea(convertAreaToDouble(item.text))
+        case "House Type:" => RTDetailsArea(convertAreaToDouble(item.text))
+        case "Heating system:" => RTDetailsArea(convertAreaToDouble(item.text))
+        case "Equipment:" => RTDetailsArea(convertAreaToDouble(item.text))
+        case "Description:" => RTDetailsArea(convertAreaToDouble(item.text))
+        case _ => RTDetailsArea(Some(1.0d))
+      }
+    })
+
+    def convertAreaToDouble(area: String): Option[Double] = {
+      Some(
+        area
+          .dropRight(3) // drop m^2
+          .replace(",", ".") //to dots notation
+          .toDouble
+      )
+    }
+
+    _details
   }
 
 }
