@@ -81,7 +81,7 @@ class Scraper(supervisor: ActorRef) extends Actor {
 
     def extractPricePerMeter(priceWithoutAdvert: Option[String]): Option[Double] = {
 
-      val capturePricePerMeterWithWhiteSpace = "\\([0-9]+".r
+      val capturePricePerMeterWithWhiteSpace = "\\([0-9 ]+".r
 
       val matched = capturePricePerMeterWithWhiteSpace
         .findFirstIn(priceWithoutAdvert.getOrElse("-1"))
@@ -94,7 +94,7 @@ class Scraper(supervisor: ActorRef) extends Actor {
     }
 
     def extractPriceWithoutCurrency(priceWithoutAdvert: Option[String]): Option[Double] = {
-      val capturePriceWithoutCurrencyWithWhiteSpace = "^\\s[0-9 ]+".r
+      val capturePriceWithoutCurrencyWithWhiteSpace = "^\\s?[0-9 ]+".r
 
       val matched = capturePriceWithoutCurrencyWithWhiteSpace
         .findFirstIn(priceWithoutAdvert.getOrElse("-1"))
@@ -105,8 +105,8 @@ class Scraper(supervisor: ActorRef) extends Actor {
     }
 
     def extractPriceWithoutAdvert: Option[String] = {
-      val priceAdvert = price >?> element(".price-change") match {
-        case Some(ele) => ele >> text
+      val priceAdvert: Option[String] = price >?> element(".price-change") match {
+        case Some(ele: Element) => ele >?> text
         case None => None
       }
 
