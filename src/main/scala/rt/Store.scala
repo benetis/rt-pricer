@@ -17,13 +17,13 @@ class Store {
                    rtSite: RTSite,
                    rtCategory: RTCategory): Future[Boolean] = {
 
-    val point = Point("RTItem", System.nanoTime())
+    val point = Point("RTItem", System.currentTimeMillis())
       .addTag("id", item.id.getOrElse(""))
       .addTag("category", rtSite.categoryId(rtCategory))
-      .addField("url", item.url.getOrElse(""))
       .addTag("price", item.price)
       .addTag("area", item.area)
       .addTag("rooms", item.rooms)
+      .addField("url", item.url.getOrElse(""))
       .addField("floor", item.floor)
       .addField("house-type", item.houseType)
       .addField("heating-system", item.heatingSystem)
@@ -34,7 +34,7 @@ class Store {
       .addField("edited", item.edited.getOrElse(""))
       .addField("interested", item.interested.getOrElse(""))
 
-    database.write(point, precision = Precision.NANOSECONDS)
+    database.write(point, precision = Precision.MILLISECONDS)
   }
 
 }
