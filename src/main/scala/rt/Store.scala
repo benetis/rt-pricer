@@ -6,32 +6,33 @@ import com.paulgoldbaum.influxdbclient._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+import scala.language.implicitConversions
+import rt.RTDetailsConversions._
 
 class Store {
   val influxdb: InfluxDB = InfluxDB.connect("localhost", 8086)
   val database: Database = influxdb.selectDatabase("rt-prices")
 
-  def writeDetails(details: RTDetails,
+  def writeDetails(item: RTItem,
                    rtSite: RTSite,
                    rtCategory: RTCategory): Future[Boolean] = {
 
-
     val point = Point("RTItem", System.nanoTime())
-      .addTag("id", details.id.getOrElse(""))
+      .addTag("id", item.id.getOrElse(""))
       .addTag("category", rtSite.categoryId(rtCategory))
-      .addField("url", details.url.getOrElse(""))
-      .addTag("price", details.price.getOrElse(""))
-      .addTag("area", details.area.area.getOrElse(0f).toString)
-      .addTag("rooms", details.rooms.getOrElse(0).toString)
-      .addField("floor", details.floor.getOrElse(-1))
-      .addField("house-type", details.houseType.getOrElse(""))
-      .addField("heating-system", details.heatingSystem.getOrElse(""))
-      .addField("equipment", details.equipment.getOrElse(""))
-      .addField("short-description", details.shortDescription.getOrElse(""))
-      .addField("comment", details.comment.getOrElse(""))
-      .addField("created", details.created.getOrElse(""))
-      .addField("edited", details.edited.getOrElse(""))
-      .addField("interested", details.interested.getOrElse(""))
+      .addField("url", item.url.getOrElse(""))
+      .addTag("price", item.price)
+      .addTag("area", item.area)
+      .addTag("rooms", item.rooms)
+      .addField("floor", item.floor)
+      .addField("house-type", item.houseType)
+      .addField("heating-system", item.heatingSystem)
+      .addField("equipment", item.equipment)
+      .addField("short-description", item.shortDescription)
+      .addField("comment", item.comment.getOrElse(""))
+      .addField("created", item.created.getOrElse(""))
+      .addField("edited", item.edited.getOrElse(""))
+      .addField("interested", item.interested.getOrElse(""))
 
     database.write(point, precision = Precision.NANOSECONDS)
   }

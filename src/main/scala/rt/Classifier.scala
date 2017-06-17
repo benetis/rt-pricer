@@ -35,27 +35,51 @@ case class RTAruodas() extends RTSite {
 
 }
 
+object RTDetailsConversions {
+  implicit def convertGeneric(rTDetails: Option[RTDetails]): String = {
+    rTDetails.flatMap(_.value).getOrElse("").toString
+  }
+
+}
+
+trait RTDetails {
+  val value: Option[Any]
+}
+
 /**
   * Details are a part above the ad, where DD / DT is used show categorized info
   * Item is one RT ad
   */
 
-case class RTDetailsArea(area: Option[Double])
+case class RTDetailsArea(value: Option[Double]) extends RTDetails {
+}
+case class RTDetailsPrice(value: Option[String]) extends RTDetails {
+}
+case class RTDetailsNumberOfRooms(value: Option[Int]) extends RTDetails
+case class RTDetailsFloor(value: Option[Int]) extends RTDetails
+case class RTDetailsNumberOfFloors(value: Option[Int]) extends RTDetails
+case class RTDetailsBuildYear(value: Option[Int]) extends RTDetails
+case class RTDetailsHouseType(value: Option[String]) extends RTDetails
+case class RTDetailsHeatingSystem(value: Option[String]) extends RTDetails
+case class RTDetailsEquipment(value: Option[String]) extends RTDetails
+case class RTDetailsShortDescription(value: Option[String]) extends RTDetails
 
-case class RTDetails(id: Option[String],
-                     url: Option[String],
-                     price: Option[String],
-                     area: RTDetailsArea,
-                     rooms: Option[Int],
-                     floor: Option[Int],
-                     houseType: Option[String],
-                     heatingSystem: Option[String],
-                     equipment: Option[String],
-                     shortDescription: Option[String],
-                     comment: Option[String],
-                     created: Option[String],
-                     edited: Option[String],
-                     interested: Option[String]
+case class RTItem(id: Option[String],
+                  url: Option[String],
+                  price: Option[RTDetailsPrice],
+                  area: Option[RTDetailsArea],
+                  rooms: Option[RTDetailsNumberOfRooms],
+                  floor: Option[RTDetailsFloor],
+                  numberOfFloors: Option[RTDetailsNumberOfFloors],
+                  buildYear: Option[RTDetailsBuildYear],
+                  houseType: Option[RTDetailsHouseType],
+                  heatingSystem: Option[RTDetailsHeatingSystem],
+                  equipment: Option[RTDetailsEquipment],
+                  shortDescription: Option[RTDetailsShortDescription],
+                  comment: Option[String],
+                  created: Option[String],
+                  edited: Option[String],
+                  interested: Option[String]
                     )
 
 

@@ -5,7 +5,7 @@ import akka.actor.{Actor, ActorRef, ActorSystem, _}
 case class StartDetails(rtSite: RTSite,
                         rTCategory: RTCategory)
 
-case class StoreDetails(details: RTDetails,
+case class StoreDetails(details: RTItem,
                         rtSite: RTSite,
                         rTCategory: RTCategory)
 
@@ -25,12 +25,12 @@ class Supervisor(system: ActorSystem) extends Actor {
 
   override def receive: Receive = {
     case StartDetails(rtSite: RTSite, rTCategory: RTCategory) => startDetails(rtSite, rTCategory)
-    case StoreDetails(details: RTDetails, rtSite: RTSite, rtCategory: RTCategory) =>
+    case StoreDetails(details: RTItem, rtSite: RTSite, rtCategory: RTCategory) =>
       storeDetails(details, rtSite, rtCategory)
     case EndDetails => ???
   }
 
-  private def storeDetails(details: RTDetails,
+  private def storeDetails(details: RTItem,
                            rtSite: RTSite,
                            rtCategory: RTCategory) = {
     store.writeDetails(details, rtSite, rtCategory)
