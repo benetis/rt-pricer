@@ -5,6 +5,7 @@ import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.model.Element
+import net.ruippeixotog.scalascraper.scraper.ContentExtractors.element
 
 import scala.util.Try
 
@@ -28,7 +29,7 @@ class Scraper(supervisor: ActorRef) extends Actor {
     println("=== [DETAILS] FLATS ===")
     val id = url.substring(url.length - 10, url.length - 1)
 
-    val price = parsePrice(doc >> element(".obj-price") >?> text)
+    val price = parsePrice(doc >> element(".obj-price"))
 
     val comment = doc >> element(".obj-comment") >?> text
 
@@ -37,7 +38,7 @@ class Scraper(supervisor: ActorRef) extends Actor {
 
     val itemDetails = detailsTerms.zip(detailsItem)
 
-    val parsedItemDetails: Seq[RTDetails] = this.splitDetails(itemDetails)
+    lazy val parsedItemDetails: Seq[RTDetails] = this.splitDetails(itemDetails)
 
     val stats = doc >> elementList(".obj-stats dl dd")
 
@@ -46,28 +47,41 @@ class Scraper(supervisor: ActorRef) extends Actor {
     val interested = stats(3).text
 
 
-    RTItem(
-      Some(id)
-      , Some(url)
-      , price
-      , parsedItemDetails.collect { case d: RTDetailsArea => d}.headOption
-      , parsedItemDetails.collect { case d: RTDetailsNumberOfRooms => d}.headOption
-      , parsedItemDetails.collect { case d: RTDetailsFloor => d}.headOption
-      , parsedItemDetails.collect { case d: RTDetailsNumberOfFloors => d}.headOption
-      , parsedItemDetails.collect { case d: RTDetailsBuildYear => d}.headOption
-      , parsedItemDetails.collect { case d: RTDetailsHouseType => d}.headOption
-      , parsedItemDetails.collect { case d: RTDetailsHeatingSystem => d}.headOption
-      , parsedItemDetails.collect { case d: RTDetailsEquipment => d}.headOption
-      , parsedItemDetails.collect { case d: RTDetailsShortDescription => d}.headOption
-      , comment
-      , Some(created)
-      , Some(edited)
-      , Some(interested)
-    )
+        RTItem(
+          Some(id)
+          , Some(url)
+          , price
+          , parsedItemDetails.collectFirst { case d: RTDetailsArea => d}
+          , parsedItemDetails.collectFirst { case d: RTDetailsNumberOfRooms => d}
+          , parsedItemDetails.collectFirst { case d: RTDetailsFloor => d}
+          , parsedItemDetails.collectFirst { case d: RTDetailsNumberOfFloors => d}
+          , parsedItemDetails.collectFirst { case d: RTDetailsBuildYear => d}
+          , parsedItemDetails.collectFirst { case d: RTDetailsHouseType => d}
+          , parsedItemDetails.collectFirst { case d: RTDetailsHeatingSystem => d}
+          , parsedItemDetails.collectFirst { case d: RTDetailsEquipment => d}
+          , parsedItemDetails.collectFirst { case d: RTDetailsShortDescription => d}
+          , comment
+          , Some(created)
+          , Some(edited)
+          , Some(interested)
+        )
   }
 
-  private def parsePrice(price: Option[String]): Option[RTDetailsPrice] = {
-    Some(RTDetailsPrice(price))
+  private def parsePrice(price: => Element): Option[RTDetailsPrice] = {
+
+    val priceAdvert: Option[String] = price >> element(".price-change") >?> text
+    val rawPriceOpt = price >?> text
+
+    val priceWithoutAdvert = rawPriceOpt match {
+      case Some(rawPrice: String) => priceAdvert match {
+        case Some(advert: String) => Some(rawPrice.replace(advert, ""))
+        case None => Some(rawPrice)
+      }
+      case None => None
+    }
+
+    Some(RTDetailsPrice(priceWithoutAdvert))
+
   }
 
   private def splitDetails(details: Seq[(Element, Element)]): Seq[RTDetails] = {
