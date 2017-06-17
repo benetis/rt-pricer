@@ -40,7 +40,7 @@ class Supervisor(system: ActorSystem) extends Actor {
                            category: RTCategory) = {
 
     scrapers ! ScrapDetails(
-      "https://en.aruodas.lt/butai-vilniuje-fabijoniskese-fabijoniskiu-g-paskutinis-loftas-grande-skelbiamas-1-2280415/",
+      "https://en.aruodas.lt/1-2280416/",
       site,
       category
     )

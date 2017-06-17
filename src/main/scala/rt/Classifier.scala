@@ -37,7 +37,7 @@ case class RTAruodas() extends RTSite {
 
 object RTDetailsConversions {
   implicit def convertGeneric(rTDetails: Option[RTDetails]): String = {
-    rTDetails.flatMap(_.value).getOrElse("").toString
+    rTDetails.flatMap(_.value).getOrElse("None").toString
   }
 
 }

@@ -29,43 +29,51 @@ class Scraper(supervisor: ActorRef) extends Actor {
     println("=== [DETAILS] FLATS ===")
     val id = url.substring(url.length - 10, url.length - 1)
 
-    val (price, pricePerMeter) = parsePrice(doc >> element(".obj-price"))
+    val priceEleOpt = doc >?> element(".obj-price")
 
-    val comment = doc >> element(".obj-comment") >?> text
+    priceEleOpt match { // if page exists
+      case Some(priceEle) =>
+        val (price, pricePerMeter) = parsePrice(priceEle)
 
-    val detailsTerms = doc >> elementList(".obj-details dt")
-    val detailsItem = doc >> elementList(".obj-details dd")
+        val comment = doc >> element(".obj-comment") >?> text
 
-    val itemDetails = detailsTerms.zip(detailsItem)
+        val detailsTerms = doc >> elementList(".obj-details dt")
+        val detailsItem = doc >> elementList(".obj-details dd")
 
-    lazy val parsedItemDetails: Seq[RTDetails] = this.splitDetails(itemDetails)
+        val itemDetails = detailsTerms.zip(detailsItem)
 
-    val stats = doc >> elementList(".obj-stats dl dd")
+        lazy val parsedItemDetails: Seq[RTDetails] = this.splitDetails(itemDetails)
 
-    val created = stats(1).text
-    val edited = stats(2).text
-    val interested = stats(3).text
+        val stats = doc >> elementList(".obj-stats dl dd")
+
+        val created = stats(1).text
+        val edited = stats(2).text
+        val interested = stats(3).text
 
 
-    RTItem(
-      Some(id)
-      , Some(url)
-      , price
-      , pricePerMeter
-      , parsedItemDetails.collectFirst { case d: RTDetailsArea => d }
-      , parsedItemDetails.collectFirst { case d: RTDetailsNumberOfRooms => d }
-      , parsedItemDetails.collectFirst { case d: RTDetailsFloor => d }
-      , parsedItemDetails.collectFirst { case d: RTDetailsNumberOfFloors => d }
-      , parsedItemDetails.collectFirst { case d: RTDetailsBuildYear => d }
-      , parsedItemDetails.collectFirst { case d: RTDetailsHouseType => d }
-      , parsedItemDetails.collectFirst { case d: RTDetailsHeatingSystem => d }
-      , parsedItemDetails.collectFirst { case d: RTDetailsEquipment => d }
-      , parsedItemDetails.collectFirst { case d: RTDetailsShortDescription => d }
-      , comment
-      , Some(created)
-      , Some(edited)
-      , Some(interested)
-    )
+        RTItem(
+          Some(id)
+          , Some(url)
+          , price
+          , pricePerMeter
+          , parsedItemDetails.collectFirst { case d: RTDetailsArea => d }
+          , parsedItemDetails.collectFirst { case d: RTDetailsNumberOfRooms => d }
+          , parsedItemDetails.collectFirst { case d: RTDetailsFloor => d }
+          , parsedItemDetails.collectFirst { case d: RTDetailsNumberOfFloors => d }
+          , parsedItemDetails.collectFirst { case d: RTDetailsBuildYear => d }
+          , parsedItemDetails.collectFirst { case d: RTDetailsHouseType => d }
+          , parsedItemDetails.collectFirst { case d: RTDetailsHeatingSystem => d }
+          , parsedItemDetails.collectFirst { case d: RTDetailsEquipment => d }
+          , parsedItemDetails.collectFirst { case d: RTDetailsShortDescription => d }
+          , comment
+          , Some(created)
+          , Some(edited)
+          , Some(interested)
+        )
+      case None => RTItem(Some(id), None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None)
+    }
+
+
   }
 
   private def parsePrice(price: => Element)
