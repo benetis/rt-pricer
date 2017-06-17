@@ -24,6 +24,8 @@ class Store {
       .addField("url", item.url.getOrElse(""))
       .addTag("price", item.price)
       .addField("price", item.price)
+      .addTag("price-per-meter", item.pricePerMeter)
+      .addField("price-per-meter", item.pricePerMeter)
       .addTag("area", item.area)
       .addField("area", item.area)
       .addTag("rooms", item.rooms)

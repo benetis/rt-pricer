@@ -29,7 +29,7 @@ class Scraper(supervisor: ActorRef) extends Actor {
     println("=== [DETAILS] FLATS ===")
     val id = url.substring(url.length - 10, url.length - 1)
 
-    val price = parsePrice(doc >> element(".obj-price"))
+    val (price, pricePerMeter) = parsePrice(doc >> element(".obj-price"))
 
     val comment = doc >> element(".obj-comment") >?> text
 
@@ -47,44 +47,83 @@ class Scraper(supervisor: ActorRef) extends Actor {
     val interested = stats(3).text
 
 
-        RTItem(
-          Some(id)
-          , Some(url)
-          , price
-          , parsedItemDetails.collectFirst { case d: RTDetailsArea => d}
-          , parsedItemDetails.collectFirst { case d: RTDetailsNumberOfRooms => d}
-          , parsedItemDetails.collectFirst { case d: RTDetailsFloor => d}
-          , parsedItemDetails.collectFirst { case d: RTDetailsNumberOfFloors => d}
-          , parsedItemDetails.collectFirst { case d: RTDetailsBuildYear => d}
-          , parsedItemDetails.collectFirst { case d: RTDetailsHouseType => d}
-          , parsedItemDetails.collectFirst { case d: RTDetailsHeatingSystem => d}
-          , parsedItemDetails.collectFirst { case d: RTDetailsEquipment => d}
-          , parsedItemDetails.collectFirst { case d: RTDetailsShortDescription => d}
-          , comment
-          , Some(created)
-          , Some(edited)
-          , Some(interested)
-        )
+    RTItem(
+      Some(id)
+      , Some(url)
+      , price
+      , pricePerMeter
+      , parsedItemDetails.collectFirst { case d: RTDetailsArea => d }
+      , parsedItemDetails.collectFirst { case d: RTDetailsNumberOfRooms => d }
+      , parsedItemDetails.collectFirst { case d: RTDetailsFloor => d }
+      , parsedItemDetails.collectFirst { case d: RTDetailsNumberOfFloors => d }
+      , parsedItemDetails.collectFirst { case d: RTDetailsBuildYear => d }
+      , parsedItemDetails.collectFirst { case d: RTDetailsHouseType => d }
+      , parsedItemDetails.collectFirst { case d: RTDetailsHeatingSystem => d }
+      , parsedItemDetails.collectFirst { case d: RTDetailsEquipment => d }
+      , parsedItemDetails.collectFirst { case d: RTDetailsShortDescription => d }
+      , comment
+      , Some(created)
+      , Some(edited)
+      , Some(interested)
+    )
   }
 
-  private def parsePrice(price: => Element): Option[RTDetailsPrice] = {
+  private def parsePrice(price: => Element)
+  : (Option[RTDetailsPrice], Option[RTDetailsPricePerMeter]) = {
 
-    val priceAdvert: Option[String] = price >> element(".price-change") >?> text
-    val rawPriceOpt = price >?> text
+    def extractPricePerMeter(priceWithoutAdvert: Option[String]): Option[Double] = {
 
-    val priceWithoutAdvert = rawPriceOpt match {
-      case Some(rawPrice: String) => priceAdvert match {
-        case Some(advert: String) => Some(rawPrice.replace(advert, ""))
-        case None => Some(rawPrice)
-      }
-      case None => None
+      val capturePricePerMeterWithWhiteSpace = "\\([0-9]+".r
+
+      val matched = capturePricePerMeterWithWhiteSpace
+        .findFirstIn(priceWithoutAdvert.getOrElse("-1"))
+
+      matched
+        .map(_.replace(" ", ""))
+        .map(_.replace("(", ""))
+        .map(_.toDouble)
+
     }
 
-    Some(RTDetailsPrice(priceWithoutAdvert))
+    def extractPriceWithoutCurrency(priceWithoutAdvert: Option[String]): Option[Double] = {
+      val capturePriceWithoutCurrencyWithWhiteSpace = "^\\s[0-9 ]+".r
 
+      val matched = capturePriceWithoutCurrencyWithWhiteSpace
+        .findFirstIn(priceWithoutAdvert.getOrElse("-1"))
+
+      matched
+        .map(_.replace(" ", ""))
+        .map(_.toDouble)
+    }
+
+    def extractPriceWithoutAdvert: Option[String] = {
+      val priceAdvert: Option[String] = price >> element(".price-change") >?> text
+      val rawPriceOpt = price >?> text
+
+      rawPriceOpt match {
+        case Some(rawPrice: String) => priceAdvert match {
+          case Some(advert: String) => Some(rawPrice.replace(advert, ""))
+          case None => Some(rawPrice)
+        }
+        case None => None
+      }
+    }
+
+    val priceWithoutAdvert = extractPriceWithoutAdvert
+
+    val pricePerMeter = extractPricePerMeter(priceWithoutAdvert)
+
+    val priceWithoutCurrency = extractPriceWithoutCurrency(priceWithoutAdvert)
+
+    (
+      Some(RTDetailsPrice(priceWithoutCurrency)),
+      Some(RTDetailsPricePerMeter(pricePerMeter))
+    )
   }
 
-  private def splitDetails(details: Seq[(Element, Element)]): Seq[RTDetails] = {
+  private def splitDetails(details: Seq[(Element, Element)]): Seq[RTDetails]
+
+  = {
     lazy val _details = details.map({
       case (term, item) => term.text match {
         case "Area (m²):" => RTDetailsArea(convertAreaToDouble(item.text))

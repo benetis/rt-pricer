@@ -53,8 +53,8 @@ trait RTDetails {
 
 case class RTDetailsArea(value: Option[Double]) extends RTDetails {
 }
-case class RTDetailsPrice(value: Option[String]) extends RTDetails {
-}
+case class RTDetailsPrice(value: Option[Double]) extends RTDetails
+case class RTDetailsPricePerMeter(value: Option[Double]) extends RTDetails
 case class RTDetailsNumberOfRooms(value: Option[Int]) extends RTDetails
 case class RTDetailsFloor(value: Option[Int]) extends RTDetails
 case class RTDetailsNumberOfFloors(value: Option[Int]) extends RTDetails
@@ -67,6 +67,7 @@ case class RTDetailsShortDescription(value: Option[String]) extends RTDetails
 case class RTItem(id: Option[String],
                   url: Option[String],
                   price: Option[RTDetailsPrice],
+                  pricePerMeter: Option[RTDetailsPricePerMeter],
                   area: Option[RTDetailsArea],
                   rooms: Option[RTDetailsNumberOfRooms],
                   floor: Option[RTDetailsFloor],
