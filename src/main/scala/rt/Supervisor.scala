@@ -38,12 +38,16 @@ class Supervisor(system: ActorSystem) extends Actor {
 
   private def startDetails(site: RTSite,
                            category: RTCategory) = {
+//2280415
+    (2270417 to 2270417).foreach(n => {
+      scrapers ! ScrapDetails(
+        s"https://en.aruodas.lt/1-$n/",
+        site,
+        category
+      )
+    })
 
-    scrapers ! ScrapDetails(
-      "https://en.aruodas.lt/1-2280416/",
-      site,
-      category
-    )
+
 
     //    store.getList().map(records => {
     //      records.foreach(r => {

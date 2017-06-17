@@ -105,7 +105,11 @@ class Scraper(supervisor: ActorRef) extends Actor {
     }
 
     def extractPriceWithoutAdvert: Option[String] = {
-      val priceAdvert: Option[String] = price >> element(".price-change") >?> text
+      val priceAdvert = price >?> element(".price-change") match {
+        case Some(ele) => ele >> text
+        case None => None
+      }
+
       val rawPriceOpt = price >?> text
 
       rawPriceOpt match {
