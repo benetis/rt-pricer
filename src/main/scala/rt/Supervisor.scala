@@ -2,6 +2,9 @@ package rt
 
 import akka.actor.{Actor, ActorRef, ActorSystem, _}
 
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+
 case class StartDetails(rtSite: RTSite,
                         rTCategory: RTCategory)
 
@@ -38,15 +41,18 @@ class Supervisor(system: ActorSystem) extends Actor {
 
   private def startDetails(site: RTSite,
                            category: RTCategory) = {
-//2280415
-    (2270417 to 2270417).foreach(n => {
+
+    var id = 2270417
+    val last = 2271641
+//    val finish = 2280415
+    system.scheduler.schedule(2 seconds, 2 seconds)({
       scrapers ! ScrapDetails(
-        s"https://en.aruodas.lt/1-$n/",
+        s"https://en.aruodas.lt/1-$id/",
         site,
         category
       )
+      id = id + 1
     })
-
 
 
     //    store.getList().map(records => {
