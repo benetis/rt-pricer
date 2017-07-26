@@ -9,5 +9,5 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "2.5.2",
   "com.typesafe.akka" %% "akka-testkit" % "2.5.2" % Test,
   "io.lemonlabs" %% "scala-uri" % "0.4.16",
-  "com.paulgoldbaum" %% "scala-influxdb-client" % "0.5.2"
+  "org.sorm-framework" % "sorm" % "0.3.21"
 )
