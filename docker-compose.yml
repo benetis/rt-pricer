@@ -1,39 +1,15 @@
-# https://github.com/nicolargo/docker-influxdb-grafana/blob/master/docker-compose.yml
-influxdb:
-  image: influxdb:latest
-  container_name: influxdb
-  ports:
-    - "8083:8083"
-    - "8086:8086"
-    - "8090:8090"
-  env_file:
-    - 'env.influxdb'
-  volumes:
-    - ./data/influxdb:/var/lib/influxdb
-
-telegraf:
-  image: telegraf:latest
-  container_name: telegraf
-  links:
-    - influxdb
-  volumes:
-    - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
-
-grafana:
-  image: grafana/grafana:latest
-  container_name: grafana
-  ports:
-    - "3000:3000"
-  links:
-    - influxdb
-  volumes:
-    - ./data/grafana:/var/lib/grafana
-
-chronograf:
-  image: chronograf:1.3.2.0
-  ports:
-    - "8888:8888"
-  links:
-    - influxdb:influxdb
-  volumes:
-   - ./data/chronograf:/var/lib/chronograf
+version: '3'
+services:
+  mysqldb:
+    image: mysql:5.7
+    restart: always
+    container_name: mysql
+    volumes:
+     - ./data/db/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: never-say-nosql
+      MYSQL_DATABASE: rt-prices
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: root9191
+    ports:
+      - 3306:3306
