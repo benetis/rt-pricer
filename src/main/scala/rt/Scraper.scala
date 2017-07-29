@@ -147,7 +147,7 @@ class Scraper(supervisor: ActorRef) extends Actor {
         case "Heating system:" => RTDetailsHeatingSystem(item.text)
         case "Equipment:" => RTDetailsEquipment(item.text)
         case "Description:" => RTDetailsShortDescription(item.text)
-        case _ => RTDetailsArea(1.0d)
+        case _ => 1.0d
       }
     })
 

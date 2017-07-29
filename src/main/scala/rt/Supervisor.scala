@@ -2,8 +2,8 @@ package rt
 
 import akka.actor.{Actor, ActorRef, ActorSystem, _}
 
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 case class StartDetails(rtSite: RTSite,
                         rTCategory: RTCategory)
@@ -40,10 +40,10 @@ class Supervisor(system: ActorSystem) extends Actor {
   private def startDetails(site: RTSite,
                            category: RTCategory) = {
 
-//    var id = 2270417
-    var id = 2283384
+    //    var id = 2270417
+    var id = 2284843
     val last = 2271641
-//    val finish = 2280415
+    //    val finish = 2280415
     system.scheduler.schedule(2 seconds, 2 seconds)({
       scrapers ! ScrapDetails(
         s"https://en.aruodas.lt/1-$id/",
@@ -52,15 +52,6 @@ class Supervisor(system: ActorSystem) extends Actor {
       )
       id = id + 1
     })
-
-
-    //    store.getList().map(records => {
-    //      records.foreach(r => {
-    //        val url: String = r("url").toString
-    //        scrapers ! ScrapDetails(url, rtS)
-    //        Thread.sleep(2000) //throttle to not kill the site
-    //      })
-    //    })
 
   }
 
