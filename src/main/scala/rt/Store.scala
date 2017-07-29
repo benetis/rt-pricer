@@ -1,23 +1,31 @@
 package rt
 
-import com.paulgoldbaum.influxdbclient.Parameter.Precision
-import com.paulgoldbaum.influxdbclient._
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
 import scala.language.implicitConversions
-import rt.RTDetailsConversions._
+import sorm._
 
-class Store {
-  val influxdb: InfluxDB = InfluxDB.connect("localhost", 8086)
-  val database: Database = influxdb.selectDatabase("rt-prices")
+object Db extends Instance(
+  entities = Set(Entity[RTItem]()),
+  url = "jdbc:mysql://127.0.0.1:3306/rt-prices",
+  user = "dev",
+  password = "root9191"
+)
+
+object Store {
 
   def writeDetails(item: RTItem,
                    rtSite: RTSite,
                    rtCategory: RTCategory): Future[Boolean] = {
 
-    val point = Point("RTItem", System.currentTimeMillis())
+    val time = System.currentTimeMillis()
+
+    Db.save(
+      item
+    )
+
+
+    /*val point = Point("RTItem", )
       .addTag("category", rtSite.categoryId(rtCategory))
       .addField("category", rtSite.categoryId(rtCategory))
       .addField("id", item.id.getOrElse(""))
@@ -42,9 +50,8 @@ class Store {
       .addTag("created", item.created.getOrElse("not-specified"))
       .addField("created", item.created.getOrElse(""))
       .addField("edited", item.edited.getOrElse(""))
-      .addField("interested", item.interested.getOrElse(""))
-
-    database.write(point, precision = Precision.MILLISECONDS)
+      .addField("interested", item.interested.getOrElse(""))*/
+      Future(true)
   }
 
 }

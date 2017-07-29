@@ -42,7 +42,7 @@ class Scraper(supervisor: ActorRef) extends Actor {
 
         val itemDetails = detailsTerms.zip(detailsItem)
 
-        lazy val parsedItemDetails: Seq[RTDetails] = this.splitDetails(itemDetails)
+        lazy val parsedItemDetails: Seq[Any] = this.splitDetails(itemDetails)
 
         val stats = doc >> elementList(".obj-stats dl dd")
 
@@ -56,15 +56,15 @@ class Scraper(supervisor: ActorRef) extends Actor {
           , Some(url)
           , price
           , pricePerMeter
-          , parsedItemDetails.collectFirst { case d: RTDetailsArea => d }
-          , parsedItemDetails.collectFirst { case d: RTDetailsNumberOfRooms => d }
-          , parsedItemDetails.collectFirst { case d: RTDetailsFloor => d }
-          , parsedItemDetails.collectFirst { case d: RTDetailsNumberOfFloors => d }
-          , parsedItemDetails.collectFirst { case d: RTDetailsBuildYear => d }
-          , parsedItemDetails.collectFirst { case d: RTDetailsHouseType => d }
-          , parsedItemDetails.collectFirst { case d: RTDetailsHeatingSystem => d }
-          , parsedItemDetails.collectFirst { case d: RTDetailsEquipment => d }
-          , parsedItemDetails.collectFirst { case d: RTDetailsShortDescription => d }
+          , parsedItemDetails.collectFirst { case d: RTDetailsArea => d.value }
+          , parsedItemDetails.collectFirst { case d: RTDetailsNumberOfRooms => d.value }
+          , parsedItemDetails.collectFirst { case d: RTDetailsFloor => d.value }
+          , parsedItemDetails.collectFirst { case d: RTDetailsNumberOfFloors => d.value }
+          , parsedItemDetails.collectFirst { case d: RTDetailsBuildYear => d.value }
+          , parsedItemDetails.collectFirst { case d: RTDetailsHouseType => d.value }
+          , parsedItemDetails.collectFirst { case d: RTDetailsHeatingSystem => d.value }
+          , parsedItemDetails.collectFirst { case d: RTDetailsEquipment => d.value }
+          , parsedItemDetails.collectFirst { case d: RTDetailsShortDescription => d.value }
           , comment
           , Some(created)
           , Some(edited)
@@ -77,7 +77,7 @@ class Scraper(supervisor: ActorRef) extends Actor {
   }
 
   private def parsePrice(price: => Element)
-  : (Option[RTDetailsPrice], Option[RTDetailsPricePerMeter]) = {
+  : (Option[Double], Option[Double]) = {
 
     def extractPricePerMeter(priceWithoutAdvert: Option[String]): Option[Double] = {
 
@@ -128,39 +128,39 @@ class Scraper(supervisor: ActorRef) extends Actor {
     val priceWithoutCurrency = extractPriceWithoutCurrency(priceWithoutAdvert)
 
     (
-      Some(RTDetailsPrice(priceWithoutCurrency)),
-      Some(RTDetailsPricePerMeter(pricePerMeter))
+      priceWithoutCurrency,
+      pricePerMeter
     )
   }
 
-  private def splitDetails(details: Seq[(Element, Element)]): Seq[RTDetails]
+  private def splitDetails(details: Seq[(Element, Element)]): Seq[Any]
 
   = {
     lazy val _details = details.map({
       case (term, item) => term.text match {
-        case "Area (m²):" => RTDetailsArea(convertAreaToDouble(item.text))
-        case "Number of rooms :" => RTDetailsNumberOfRooms(Try(item.text.toInt).toOption)
-        case "Floor:" => RTDetailsFloor(Try(item.text.toInt).toOption)
-        case "No. of floors:" => RTDetailsNumberOfRooms(Try(item.text.toInt).toOption)
-        case "Build year:" => RTDetailsBuildYear(Try(item.text.toInt).toOption)
-        case "House Type:" => RTDetailsHouseType(Try(item.text).toOption)
-        case "Heating system:" => RTDetailsHeatingSystem(Try(item.text).toOption)
-        case "Equipment:" => RTDetailsEquipment(Try(item.text).toOption)
-        case "Description:" => RTDetailsShortDescription(Try(item.text).toOption)
-        case _ => RTDetailsArea(Some(1.0d))
+        case "Area (m²):" => convertAreaToDouble(item.text)
+        case "Number of rooms :" => RTDetailsNumberOfRooms(item.text.toInt)
+        case "Floor:" => RTDetailsFloor(item.text.toInt)
+        case "No. of floors:" => RTDetailsNumberOfRooms(item.text.toInt)
+        case "Build year:" => RTDetailsBuildYear(item.text.toInt)
+        case "House Type:" => RTDetailsHouseType(item.text)
+        case "Heating system:" => RTDetailsHeatingSystem(item.text)
+        case "Equipment:" => RTDetailsEquipment(item.text)
+        case "Description:" => RTDetailsShortDescription(item.text)
+        case _ => RTDetailsArea(1.0d)
       }
     })
 
-    def convertAreaToDouble(area: String): Option[Double] = {
+    def convertAreaToDouble(area: String): Option[RTDetailsArea] = {
       Some({
         val areaStr = area
           .dropRight(3) // drop m^2
           .replace(",", ".") //to dots notation
 
         if (areaStr.isEmpty)
-          0.0d
+          RTDetailsArea(0.0d)
         else
-          areaStr.toDouble
+          RTDetailsArea(areaStr.toDouble)
       })
     }
 

@@ -23,53 +23,45 @@ case class RTAruodas() extends RTSite {
 
 }
 
-object RTDetailsConversions {
-  implicit def convertGeneric(rTDetails: Option[RTDetails]): String = {
-    rTDetails.flatMap(_.value).getOrElse("None").toString
-  }
 
+case class RTItem(
+                        itemId: Option[String],
+                        url: Option[String],
+                        price: Option[Double],
+                        pricePerMeter: Option[Double],
+                        area: Option[Double],
+                        rooms: Option[Int],
+                        floor: Option[Int],
+                        numberOfFloors: Option[Int],
+                        buildYear: Option[Int],
+                        houseType: Option[String],
+                        heatingSystem: Option[String],
+                        equipment: Option[String],
+                        shortDescription: Option[String],
+                        comment: Option[String],
+                        created: Option[String],
+                        edited: Option[String],
+                        interested: Option[String]
+                      )
+
+case class RTDetailsArea(value: Double) {
 }
 
-trait RTDetails {
-  val value: Option[Any]
-}
+case class RTDetailsNumberOfRooms(value: Int)
 
-/**
-  * Details are a part above the ad, where DD / DT is used show categorized info
-  * Item is one RT ad
-  */
+case class RTDetailsFloor(value: Int)
 
-case class RTDetailsArea(value: Option[Double]) extends RTDetails {
-}
-case class RTDetailsPrice(value: Option[Double]) extends RTDetails
-case class RTDetailsPricePerMeter(value: Option[Double]) extends RTDetails
-case class RTDetailsNumberOfRooms(value: Option[Int]) extends RTDetails
-case class RTDetailsFloor(value: Option[Int]) extends RTDetails
-case class RTDetailsNumberOfFloors(value: Option[Int]) extends RTDetails
-case class RTDetailsBuildYear(value: Option[Int]) extends RTDetails
-case class RTDetailsHouseType(value: Option[String]) extends RTDetails
-case class RTDetailsHeatingSystem(value: Option[String]) extends RTDetails
-case class RTDetailsEquipment(value: Option[String]) extends RTDetails
-case class RTDetailsShortDescription(value: Option[String]) extends RTDetails
+case class RTDetailsNumberOfFloors(value: Int)
 
-case class RTItem(id: Option[String],
-                  url: Option[String],
-                  price: Option[RTDetailsPrice],
-                  pricePerMeter: Option[RTDetailsPricePerMeter],
-                  area: Option[RTDetailsArea],
-                  rooms: Option[RTDetailsNumberOfRooms],
-                  floor: Option[RTDetailsFloor],
-                  numberOfFloors: Option[RTDetailsNumberOfFloors],
-                  buildYear: Option[RTDetailsBuildYear],
-                  houseType: Option[RTDetailsHouseType],
-                  heatingSystem: Option[RTDetailsHeatingSystem],
-                  equipment: Option[RTDetailsEquipment],
-                  shortDescription: Option[RTDetailsShortDescription],
-                  comment: Option[String],
-                  created: Option[String],
-                  edited: Option[String],
-                  interested: Option[String]
-                    )
+case class RTDetailsBuildYear(value: Int)
+
+case class RTDetailsHouseType(value: String)
+
+case class RTDetailsHeatingSystem(value: String)
+
+case class RTDetailsEquipment(value: String)
+
+case class RTDetailsShortDescription(value: String)
 
 
 class Classifier {

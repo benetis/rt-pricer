@@ -22,8 +22,6 @@ class Supervisor(system: ActorSystem) extends Actor {
 
   var host2Actor = Map.empty[String, ActorRef]
 
-  val store = new Store
-
   val scrapers = system.actorOf(Props(new Scraper(self)))
 
   override def receive: Receive = {
@@ -36,7 +34,7 @@ class Supervisor(system: ActorSystem) extends Actor {
   private def storeDetails(details: RTItem,
                            rtSite: RTSite,
                            rtCategory: RTCategory) = {
-    store.writeDetails(details, rtSite, rtCategory)
+    Store.writeDetails(details, rtSite, rtCategory)
   }
 
   private def startDetails(site: RTSite,
