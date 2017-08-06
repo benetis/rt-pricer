@@ -1,8 +1,13 @@
-name := "rt-prices"
+import sbt.Keys.version
 
-version := "1.0"
+lazy val root = (project in file(".")).
+  settings(
+    name := "rt-prices",
+    version := "1.0",
+    scalaVersion := "2.11.8",
 
-scalaVersion := "2.11.8"
+    mainClass in Compile := Some("Main")
+  )
 
 libraryDependencies ++= Seq(
   "net.ruippeixotog" %% "scala-scraper" % "2.0.0-RC2",
@@ -13,3 +18,6 @@ libraryDependencies ++= Seq(
   "mysql" % "mysql-connector-java" % "5.1.24",
   "ch.qos.logback" % "logback-classic" % "1.1.3"
 )
+
+enablePlugins(JavaAppPackaging)
+enablePlugins(UniversalPlugin)
